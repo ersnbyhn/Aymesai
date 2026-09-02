@@ -1,329 +1,174 @@
-<!DOCTYPE html>
-<html lang="tr">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <!-- Mobil cihazlarda otomatik yakınlaşmayı ve sayfa kaymasını tamamen engeller -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>2026 Mesai Takibi</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      touch-action: manipulation;
-    }
+<title>Maaş Hesaplama - ErsNByhN</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<hta:application id="oMaas" applicationname="MaasHesap" border="thin" scroll="no" caption="yes" showintaskbar="yes" singleinstance="yes" sysmenu="yes" windowstate="normal">
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Arial; background-color: #f0f2f5; margin: 0; padding: 3px; overflow: hidden; }
+    .container { background: #ffffff; padding: 8px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 440px; margin: auto; border-top: 5px solid #0057b8; }
+    h2 { color: #0057b8; text-align: center; font-size: 13px; margin: 2px 0 5px 0; text-transform: uppercase; border-bottom: 1px solid #eee; padding-bottom: 3px; }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 1px 3px; vertical-align: middle; }
+    .lbl { font-weight: bold; font-size: 11px; width: 55%; color: #2c3e50; }
+    .input-cell { width: 45%; }
+    input, select { width: 100%; padding: 1px 3px; font-size: 11px; border: 1px solid #bdc3c7; border-radius: 4px; text-align: right; font-weight: bold; height: 20px; }
+    .readonly-input { background-color: #f1f2f6; color: #d35400; border-color: #bdc3c7; }
+    .editable-param { background-color: #fff9e6; color: #27ae60; border: 1px solid #27ae60; }
+    .btn { width: 100%; padding: 6px; margin-top: 6px; background-color: #0057b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
+    .btn:hover { background-color: #004494; }
+    .result-panel { margin-top: 8px; padding: 5px; background-color: #fff9f4; border: 1px dashed #d35400; border-radius: 6px; }
+    .result-row { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #2c3e50; margin: 2px 0; }
+    .result-val { color: #d35400; }
+    .footer { text-align: right; margin-top: 4px; font-size: 10px; font-weight: bold; color: #7f8c8d; border-top: 1px solid #eee; padding-top: 2px; }
+    hr { margin: 4px 0; border: 0; border-top: 1px solid #eee; }
+    
+    /* Gece Zammı Özel Düzenleme */
+    .gz-label-area { display: flex; align-items: center; justify-content: space-between; padding-right: 5px; }
+    .gz-small-box { width: 45px !important; height: 18px !important; font-size: 10px !important; margin-left: 5px; }
+</style>
 
-    html, body {
-      height: 100%;
-      width: 100%;
-      overflow: hidden; /* Sayfanın taşmasını ve büyümesini engeller */
-      position: fixed; /* Mobilde klavye açıldığında sayfanın kaymasını kilitler */
-      background-color: #f4f6f8;
-    }
+<script language="VBScript">
+    Sub Window_OnLoad
+        window.resizeTo 470, 880
+        document.getElementById("s9").value = "310,02" 
+        document.getElementById("s10").value = "3341,82"
+        document.getElementById("s12").value = "1121,24"
+        document.getElementById("s12d").value = "1112,73"
+        document.getElementById("gz_oran").value = "30,63"
+        document.getElementById("asgari").value = "33030,00"
+        document.getElementById("dv_muaf").value = "250,70"
+        document.getElementById("gv_muaf").value = "4211,33"
+    End Sub
 
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-    }
+    Function G(id)
+        Dim val
+        val = document.getElementById(id).value
+        If val = "" Then G = 0 Else val = Replace(val, ".", ",") : If IsNumeric(val) Then G = CDbl(val) Else G = 0
+    End Function
 
-    .container {
-      width: 100%;
-      max-width: 420px;
-      height: 100%;
-      max-height: 95vh;
-      background: #fff;
-      border: 2px solid #333;
-      border-radius: 8px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-    }
+    Sub OtomatikHesapla
+        B2 = G("s1") : B3 = G("s2")
+        document.getElementById("s3").value = FormatNumber(B2 * B3, 2, -1, 0, 0)
+        document.getElementById("s11").value = FormatNumber(75 * B2, 2, -1, 0, 0)
+    End Sub
 
-    .hidden {
-      display: none !important;
-    }
+    Sub HandleEnter()
+        If window.event.keyCode = 13 Then
+            window.event.returnValue = False
+            Dim cId, nId
+            cId = window.event.srcElement.id
+            Select Case cId
+                Case "s1": nId = "s2"
+                Case "s2": nId = "s4"
+                Case "s4": nId = "s5"
+                Case "s5": nId = "s6"
+                Case "s6": nId = "s7"
+                Case "s7": nId = "s8"
+                Case "s8": nId = "s13"
+                Case "s13": nId = "s14"
+                Case "s14": nId = "s9"
+                Case "s9": nId = "s10"
+                Case "s10": nId = "s12"
+                Case "s12": nId = "s12d"
+                Case "s12d": nId = "asgari"
+                Case "asgari": nId = "dv_muaf"
+                Case "dv_muaf": nId = "gv_muaf"
+                Case "gv_muaf": nId = "s16"
+                Case "s16": nId = "s17"
+                Case "s17": nId = "s18"
+                Case "s18": nId = "s19"
+                Case "s19": nId = "s20"
+                Case "s20": nId = "v1"
+                Case "v1": Hesapla : Exit Sub
+            End Select
+            On Error Resume Next
+            document.getElementById(nId).Focus
+        End If
+    End Sub
 
-    h2 {
-      text-align: center;
-      margin-bottom: 10px;
-      font-weight: bold;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-
-    /* 12 Ay Listesi - Sayfaya Tam Ortalanmış Yapı */
-    #monthsView {
-      justify-content: center;
-    }
-
-    .months-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex: 1;
-      justify-content: center; /* Ayları dikeyde tam ortalar */
-    }
-
-    .month-btn {
-      flex: 1;
-      max-height: 45px;
-      padding: 0 15px;
-      background: #fff;
-      border: 2px solid #333;
-      font-size: 15px;
-      font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .month-btn:active {
-      background-color: #e0e0e0;
-    }
-
-    .month-hours-badge {
-      font-size: 15px;
-      font-weight: bold;
-      color: #000;
-    }
-
-    /* Takvim Header */
-    .header-nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      flex-shrink: 0;
-    }
-
-    #backBtn {
-      padding: 5px 10px;
-      background: #333;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    /* Haftalık Başlıklar ve Takvim Izgarası */
-    .weekdays-grid, .days-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 2px;
-      text-align: center;
-    }
-
-    .weekdays-grid {
-      flex-shrink: 0;
-    }
-
-    .weekdays-grid div {
-      background: #7f8c8d;
-      color: white;
-      padding: 4px 0;
-      font-size: 11px;
-      font-weight: bold;
-    }
-
-    .days-grid {
-      flex: 1;
-      grid-template-rows: repeat(6, 1fr);
-    }
-
-    .day-cell {
-      border: 1px solid #ccc;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background: #fff;
-      overflow: hidden;
-    }
-
-    .day-number {
-      font-size: 10px;
-      padding: 1px 2px;
-      background: #f9f9f9;
-      text-align: left;
-    }
-
-    /* iOS & Android klavye odaklanmasında otomatik zoom yapmayı önleyen CSS ayarları */
-    .day-input {
-      width: 100%;
-      border: none;
-      text-align: center;
-      font-size: 16px !important; /* Minimum 16px zoom'u engeller */
-      font-weight: bold;
-      padding: 2px 0;
-      background: #88d498;
-      outline: none;
-      -webkit-text-size-adjust: 100%;
-    }
-
-    /* Toplam Mesai Alanı */
-    .total-bar {
-      margin-top: 8px;
-      background: #4caf50;
-      color: white;
-      padding: 8px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 15px;
-      border-radius: 4px;
-      flex-shrink: 0;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- 12 AY SEÇİM EKRANI -->
-  <div id="monthsView" class="container">
-    <h2>2026 MESAİ</h2>
-    <div id="monthsGrid" class="months-grid"></div>
-  </div>
-
-  <!-- AY DETAY / TAKVİM EKRANI -->
-  <div id="calendarView" class="container hidden">
-    <div class="header-nav">
-      <button id="backBtn">← Geri</button>
-      <h2 id="currentMonthTitle" style="margin-bottom:0;">AY</h2>
-      <div style="width: 45px;"></div>
-    </div>
-
-    <!-- Gün Başlıkları (Pt - Pz) -->
-    <div class="weekdays-grid">
-      <div>Pt</div><div>Sa</div><div>Ça</div><div>Pe</div><div>Cu</div><div>Ct</div><div>Pz</div>
-    </div>
-
-    <!-- Takvim Günleri ve Mesai Girdileri -->
-    <div id="daysGrid" class="days-grid"></div>
-
-    <!-- Toplam Mesai Görünümü -->
-    <div class="total-bar">
-      <span>Toplam Mesai: </span>
-      <span id="totalHours">0</span> Saat
-    </div>
-  </div>
-
-  <script>
-    const monthNames = [
-      "OCAK", "ŞUBAT", "MART", "NİSAN", "MAYIS", "HAZİRAN",
-      "TEMMUZ", "AĞUSTOS", "EYLÜL", "EKİM", "KASIM", "ARALIK"
-    ];
-
-    const year = 2026;
-    let selectedMonthIndex = 0;
-
-    const monthsView = document.getElementById("monthsView");
-    const calendarView = document.getElementById("calendarView");
-    const monthsGrid = document.getElementById("monthsGrid");
-    const daysGrid = document.getElementById("daysGrid");
-    const currentMonthTitle = document.getElementById("currentMonthTitle");
-    const totalHours = document.getElementById("totalHours");
-    const backBtn = document.getElementById("backBtn");
-
-    function renderMonthsList() {
-      monthsGrid.innerHTML = "";
-      monthNames.forEach((month, index) => {
-        const btn = document.createElement("div");
-        btn.className = "month-btn";
-
-        const titleSpan = document.createElement("span");
-        titleSpan.innerText = month;
-
-        const hoursSpan = document.createElement("span");
-        hoursSpan.className = "month-hours-badge";
+    Sub Hesapla
+        On Error Resume Next
+        B2 = G("s1") : B3 = G("s2") : B4 = B2 * B3
+        C5 = G("s4") * B2 * 2 : C6 = G("s5") * B2 * 2 : C7 = G("s6") * B2 * 2.25 
+        C8 = G("s7") * G("gz_oran") : C9 = G("s8")
+        B10 = G("s9") : B11 = 75 * B2 : B12 = G("s10") : B13 = G("s12") 
+        B16 = 0 : B16_2 = G("s16") : B17 = G("s17") : B18 = G("s18") : B20 = G("s19") : B22 = G("s20")
         
-        const monthlyTotal = getMonthTotalHours(index);
-        hoursSpan.innerText = monthlyTotal > 0 ? monthlyTotal : "";
+        DV_M = G("dv_muaf") : GV_M = G("gv_muaf")
 
-        btn.appendChild(titleSpan);
-        btn.appendChild(hoursSpan);
-
-        btn.onclick = () => openMonth(index);
-        monthsGrid.appendChild(btn);
-      });
-    }
-
-    function openMonth(index) {
-      selectedMonthIndex = index;
-      currentMonthTitle.innerText = monthNames[index];
-      monthsView.classList.add("hidden");
-      calendarView.classList.remove("hidden");
-      renderCalendar(index);
-    }
-
-    backBtn.onclick = () => {
-      calendarView.classList.add("hidden");
-      monthsView.classList.remove("hidden");
-      renderMonthsList();
-    };
-
-    function renderCalendar(monthIndex) {
-      daysGrid.innerHTML = "";
-      
-      const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-      let firstDay = new Date(year, monthIndex, 1).getDay();
-      firstDay = (firstDay === 0) ? 6 : firstDay - 1;
-
-      for (let i = 0; i < firstDay; i++) {
-        const emptyCell = document.createElement("div");
-        emptyCell.className = "day-cell";
-        emptyCell.style.background = "#eee";
-        daysGrid.appendChild(emptyCell);
-      }
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const cell = document.createElement("div");
-        cell.className = "day-cell";
-
-        const numSpan = document.createElement("span");
-        numSpan.className = "day-number";
-        numSpan.innerText = day;
-
-        const input = document.createElement("input");
-        input.type = "number";
-        input.step = "0.5";
-        input.className = "day-input";
-
-        const storageKey = `mesai_${year}_${monthIndex}_${day}`;
-        input.value = localStorage.getItem(storageKey) || "";
-
-        input.oninput = () => {
-          localStorage.setItem(storageKey, input.value);
-          calculateTotal(monthIndex, daysInMonth);
-        };
-
-        cell.appendChild(numSpan);
-        cell.appendChild(input);
-        daysGrid.appendChild(cell);
-      }
-
-      calculateTotal(monthIndex, daysInMonth);
-    }
-
-    function getMonthTotalHours(monthIndex) {
-      const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-      let total = 0;
-      for (let day = 1; day <= daysInMonth; day++) {
-        const val = localStorage.getItem(`mesai_${year}_${monthIndex}_${day}`);
-        if (val) total += parseFloat(val);
-      }
-      return total;
-    }
-
-    function calculateTotal(monthIndex, daysInMonth) {
-      const total = getMonthTotalHours(monthIndex);
-      totalHours.innerText = total;
-    }
-
-    renderMonthsList();
-  </script>
+        B26 = B4 + C5 + C6 + C7 + C8 + C9 + B10 + B11 + B12 + B13 + B16 + B16_2 + B17 + B18 + B20 + B22
+        B27 = B26 - B10 - B13 - B16 
+        
+        B30 = Round(B27 * 0.14, 2) : B31 = Round(B27 * 0.01, 2) : B15 = G("s14") 
+        B29 = B27 - B30 - B31 - B15
+        
+        v_oran = CDbl(document.getElementById("v1").value) / 100
+        B33 = Round((B29 * v_oran) - GV_M, 2) : If B33 < 0 Then B33 = 0
+        B32 = Round((B26 * 0.00759) - DV_M, 2) : If B32 < 0 Then B32 = 0
+        
+        B40 = B30 + B31 + B32 + B33 : B14 = G("s13") : D13 = G("s12d") : B23 = 0
+        B41 = B15 + B14 + B23 + D13 
+        
+        B42 = B26 - B41 - B40 : B43 = B42 + B14       
+        
+        document.getElementById("res6").innerHTML = FormatCurrency(B42, 2)
+        document.getElementById("resToplam").innerHTML = FormatCurrency(B43, 2)
+        MsgBox "Hesaplama Tamamlandı!", 64, "ErsNByhN"
+    End Sub
+</script>
+</head>
+<body onkeydown="HandleEnter()">
+<div class="container">
+    <h2>Maaş Hesaplama Otomasyonu</h2>
+    <table>
+        <tr><td class="lbl">Saat Ücreti:</td><td class="input-cell"><input type="text" id="s1" onkeyup="OtomatikHesapla"></td></tr>
+        <tr><td class="lbl">Çalışma Saati:</td><td class="input-cell"><input type="text" id="s2" onkeyup="OtomatikHesapla"></td></tr>
+        <tr><td class="lbl">Temel Brüt :</td><td class="input-cell"><input type="text" id="s3" class="readonly-input" readonly></td></tr>
+        <tr><td class="lbl">İkramiye :</td><td class="input-cell"><input type="text" id="s11" class="readonly-input" readonly></td></tr>
+        <tr><td colspan="2"><hr></td></tr>
+        <tr><td class="lbl">Mesai Saati (x2):</td><td class="input-cell"><input type="text" id="s4"></td></tr>
+        <tr><td class="lbl">Vardiya Dön. Saati (x2):</td><td class="input-cell"><input type="text" id="s5"></td></tr>
+        <tr><td class="lbl">Bayram Mesai Saati (x2.25):</td><td class="input-cell"><input type="text" id="s6"></td></tr>
+        <tr>
+            <td class="lbl">
+                <div class="gz-label-area">
+                    <span>Gece Zammı Saati (x30.63):</span>
+                    <input type="text" id="gz_oran" class="editable-param gz-small-box">
+                </div>
+            </td>
+            <td class="input-cell"><input type="text" id="s7"></td>
+        </tr>
+        <tr><td class="lbl">FM Gece Zammı (TL):</td><td class="input-cell"><input type="text" id="s8"></td></tr>
+        <tr><td class="lbl">Avans :</td><td class="input-cell"><input type="text" id="s13"></td></tr>
+        <tr><td class="lbl">Sendika Aidatı :</td><td class="input-cell"><input type="text" id="s14"></td></tr>
+        <tr><td colspan="2"><hr></td></tr>
+        <tr><td class="lbl">Çocuk Yardımı:</td><td class="input-cell"><input type="text" id="s9"></td></tr>
+        <tr><td class="lbl">Yakacak Yardımı:</td><td class="input-cell"><input type="text" id="s10"></td></tr>
+        <tr><td class="lbl">Sağlık Sigortası :</td><td class="input-cell"><input type="text" id="s12"></td></tr>
+        <tr><td class="lbl">Sağlık Sigortası (Özel):</td><td class="input-cell"><input type="text" id="s12d"></td></tr>
+        <tr><td class="lbl">Asgari Ücret BRÜT:</td><td class="input-cell"><input type="text" id="asgari" class="editable-param"></td></tr>
+        <tr><td class="lbl">DV Muafiyeti:</td><td class="input-cell"><input type="text" id="dv_muaf" class="editable-param"></td></tr>
+        <tr><td class="lbl">GV Muafiyeti:</td><td class="input-cell"><input type="text" id="gv_muaf" class="editable-param"></td></tr>
+        <tr><td colspan="2"><hr></td></tr>
+        <tr><td class="lbl">Ayni Yardım 2:</td><td class="input-cell"><input type="text" id="s16"></td></tr>
+        <tr><td class="lbl">İzin Parası:</td><td class="input-cell"><input type="text" id="s17"></td></tr>
+        <tr><td class="lbl">Alışveriş Çeki:</td><td class="input-cell"><input type="text" id="s18"></td></tr>
+        <tr><td class="lbl">Bayram Ücreti:</td><td class="input-cell"><input type="text" id="s19"></td></tr>
+        <tr><td class="lbl">Öğrenim Yardımı:</td><td class="input-cell"><input type="text" id="s20"></td></tr>
+        <tr><td class="lbl">Vergi Dilimi:</td><td class="input-cell">
+            <select id="v1">
+                <option value="15">%15</option>
+                <option value="20" selected>%20</option>
+                <option value="27">%27</option>
+            </select>
+        </td></tr>
+    </table>
+    <button class="btn" onclick="Hesapla" id="btnHesapla">MAAŞI HESAPLA</button>
+    <div class="result-panel">
+        <div class="result-row"><span>TOPLAM MAAŞ (Net):</span><span id="res6" class="result-val">0,00 TL</span></div>
+        <div class="result-row"><span>AYIN 6'SI NET ÖDEME:</span><span id="resToplam" class="result-val">0,00 TL</span></div>
+    </div>
+    <div class="footer">Hazırlayan: <span>ErsNByhN</span></div>
+</div>
 </body>
 </html>
