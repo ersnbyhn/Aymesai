@@ -1,315 +1,232 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>ErsNByhN® 2026</title>
+<head><base href="https://gist.githubusercontent.com/ersnbyhn/0178d582e5dce837c779d196af23804d/raw/ac407efd8dd4b3f67d849ca718cde9783a10df75/index.html">
+<title>Maaş Hesaplama - ErsNByhN</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="apple-touch-icon" href="https://i.ibb.co/mFNgxpdC/icon-192.png">
 
-    <style>
-        * { box-sizing: border-box; }
-        body { 
-            font-family: 'Arial Black', Gadget, sans-serif; 
-            margin: 0; 
-            padding: 10px; 
-            background-color: #f0f2f5; 
-            color: #000;
-            user-select: none;
-            -webkit-user-select: none;
-        }
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Arial; background-color: #f0f2f5; margin: 0; padding: 10px; overflow-y: auto; }
+    .container { background: #ffffff; padding: 15px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 440px; margin: auto; border-top: 5px solid #0057b8; }
+    h2 { color: #0057b8; text-align: center; font-size: 14px; margin: 2px 0 10px 0; text-transform: uppercase; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 3px; vertical-align: middle; }
+    .lbl { font-weight: bold; font-size: 11px; width: 55%; color: #2c3e50; }
+    .input-cell { width: 45%; }
+    /* Yazı boyutu 16px yapıldı ki iPhone yakınlaştırma yapmasın */
+    input, select { width: 100%; padding: 5px; font-size: 16px; border: 1px solid #bdc3c7; border-radius: 4px; text-align: right; font-weight: bold; height: 35px; box-sizing: border-box; }
+    .readonly-input { background-color: #f1f2f6; color: #d35400; border-color: #bdc3c7; }
+    .editable-param { background-color: #fff9e6; color: #27ae60; border: 1px solid #27ae60; }
+    .btn { width: 100%; padding: 12px; margin-top: 10px; background-color: #0057b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; -webkit-appearance: none; }
+    .btn:hover { background-color: #004494; }
+    .result-panel { margin-top: 10px; padding: 8px; background-color: #fff9f4; border: 1px dashed #d35400; border-radius: 6px; }
+    .result-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #2c3e50; margin: 4px 0; }
+    .result-val { color: #d35400; }
+    .footer { text-align: right; margin-top: 8px; font-size: 10px; font-weight: bold; color: #7f8c8d; border-top: 1px solid #eee; padding-top: 4px; }
+    hr { margin: 8px 0; border: 0; border-top: 1px solid #eee; }
+    .gz-label-area { display: flex; align-items: center; justify-content: space-between; padding-right: 5px; }
+    .gz-small-box { width: 65px !important; height: 25px !important; font-size: 12px !important; margin-left: 5px; }
+</style>
 
-        .bg-normal { background-color: #f0f2f5 !important; color: #000 !important; }
-        .bg-kirmizi { background-color: #ff0000 !important; color: #ffffff !important; }
-        .bg-yesil { background-color: #00ff00 !important; color: #000000 !important; }
-        .bg-turuncu { background-color: #ff8c00 !important; color: #ffffff !important; }
+<script>
+    function G(id) {
+        let val = document.getElementById(id).value;
+        if (val === "") return 0;
+        val = val.replace(/\./g, "").replace(",", ".");
+        return isNaN(parseFloat(val)) ? 0 : parseFloat(val);
+    }
 
-        .excel-tablo { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-        .excel-tablo td { border: 3px solid #000; padding: 5px; text-align: center; height: 65px; vertical-align: middle; } 
-        
-        .etiket-hucre-ozel { display: flex; flex-direction: column; justify-content: center; height: 100%; }
-        .ana-etiket { font-size: 24px; font-weight: 900; text-transform: uppercase; line-height: 1; }
-        .alt-not-sifir { font-size: 12px; font-weight: 900; }
+    function formatTRY(val) {
+        return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(val);
+    }
 
-        .etiket-normal { font-size: 20px; font-weight: 900; text-transform: uppercase; }
-        .dev-input { 
-            width: 100%; 
-            height: 100%; 
-            font-size: 32px; 
-            font-weight: 900; 
-            border: none; 
-            text-align: center; 
-            outline: none; 
-            font-family: 'Arial Black', sans-serif; 
-            color: inherit; 
-            background: transparent;
-        }
-        
-        .radio-container { font-size: 22px; font-weight: 900; margin: 0 5px; cursor: pointer; }
-        
-        .islem-btn { 
-            background-color: #ffffff; 
-            border: 2px solid #000; 
-            padding: 10px; 
-            font-size: 16px; 
-            font-weight: 900; 
-            cursor: pointer; 
-            color: #000; 
-            text-transform: uppercase;
-            border-radius: 8px;
-            margin: 2px;
-        }
+    function OtomatikHesapla() {
+        let B2 = G("s1");
+        let B3 = G("s2");
+        document.getElementById("s3").value = (B2 * B3).toFixed(2).replace(".", ",");
+        document.getElementById("s11").value = (75 * B2).toFixed(2).replace(".", ",");
+    }
 
-        .uyari-konteynir { width: 100%; height: 70px; display: flex; align-items: center; justify-content: center; margin-top: 10px; }
-        .uyari-metin { font-size: 40px; font-weight: 900; text-align: center; width: 100%; }
-
-        .ana-kart { width: 100%; max-width: 400px; margin: 0 auto; text-align: center; }
-        .ana-baslik { font-size: 28px; font-weight: 900; margin-bottom: 15px; border-bottom: 4px solid #3498db; padding-bottom: 5px; }
-        .ana-baslik span { font-size: 16px; display: block; margin-top: 5px; } 
-        .ana-btn { 
-            width: 100%; 
-            padding: 15px; 
-            margin: 8px 0; 
-            background-color: #3498db; 
-            color: white; 
-            border: 2px solid #000; 
-            cursor: pointer; 
-            font-weight: 900; 
-            font-size: 16px; 
-            text-transform: uppercase; 
-            border-radius: 8px;
-        }
-
-        .sayfa { display: none; width: 100%; }
-        .aktif { display: block; }
-        .sayfa-ust-baslik { font-size: 36px; text-align: center; font-weight: 900; margin-top: 5px; }
-        .sayfa-alt-baslik { font-size: 18px; text-align: center; font-weight: 900; margin-bottom: 15px; }
-
-        .alt-bilgi { margin-top: 20px; font-family: Arial, sans-serif; font-size: 12px; display: flex; justify-content: space-between; }
-    </style>
-
-    <script>
-        function f(s) { return (s < 10) ? "0" + s : s; }
-
-        function saatiGuncelle() {
-            var d = new Date();
-            var metin = f(d.getDate()) + "." + f(d.getMonth() + 1) + "." + d.getFullYear() + " - " + f(d.getHours()) + ":" + f(d.getMinutes()) + ":" + f(d.getSeconds());
-            var alan = document.getElementById('saatAlan');
-            if(alan) alan.innerHTML = metin;
-            setTimeout(saatiGuncelle, 1000);
-        }
-
-        window.onload = function() { saatiGuncelle(); }
-
-        function sayfaAc(id) {
-            document.body.className = "bg-normal";
-            var sayfalar = ["ana-sayfa", "dis-cap-sayfa", "fire-sayfa", "kik-sayfa", "kg-hesap-sayfa", "uzunluk-hesap-sayfa", "sure-hesap-sayfa"];
-            for (var i = 0; i < sayfalar.length; i++) { 
-                var s = document.getElementById(sayfalar[i]);
-                if(s) s.style.display = "none"; 
-            }
-            var hedef = document.getElementById(id);
-            if(hedef) hedef.style.display = "block";
-        }
-
-        function formatla(id) {
-            var input = document.getElementById(id);
-            var deger = parseFloat(input.value.replace(',', '.'));
-            if (!isNaN(deger)) {
-                input.value = deger.toFixed(2).replace('.', ',');
-            }
-        }
-
-        function temizle(id) {
-            document.body.className = "bg-normal";
-            var inputs = document.getElementById(id).getElementsByTagName('input');
-            for (var i = 0; i < inputs.length; i++) { if (inputs[i].type == "text") inputs[i].value = ""; }
-            var uyarilar = ["kikUyari", "uyariMesaji", "fireUyari", "kgUyari", "uzunlukUyari", "sureUyari"];
-            for (var j=0; j<uyarilar.length; j++) { if(document.getElementById(uyarilar[j])) document.getElementById(uyarilar[j]).innerHTML = "&nbsp;"; }
-        }
-
-        function hesaplaDisCap() {
-            var ag = parseFloat(document.getElementById('ag').value.replace(',', '.'));
-            var gn = parseFloat(document.getElementById('gn').value.replace(',', '.'));
-            var ic = document.getElementById('r610').checked ? 610 : 508;
-            if (isNaN(ag) || isNaN(gn)) return;
-            var sonuc = Math.round(Math.sqrt(((4 * ag * 1000000) / (7.85 * gn * 3.14)) + (ic * ic)));
-            document.getElementById('sonuc').value = sonuc;
-            var u = document.getElementById('uyariMesaji');
-            if (sonuc >= 1820) { document.body.className = "bg-kirmizi"; u.innerHTML = "BÖL :("; }
-            else if (sonuc >= 1801) { document.body.className = "bg-turuncu"; u.innerHTML = "SINIRDA !"; }
-            else { document.body.className = "bg-yesil"; u.innerHTML = "TEK ÇEK :)"; }
-        }
-
-        function hesaplaFire() {
-            var brt = parseFloat(document.getElementById('brut').value.replace(',', '.'));
-            var net = parseFloat(document.getElementById('net').value.replace(',', '.'));
-            if (isNaN(brt) || isNaN(net) || brt == 0) return;
-            var fOran = (((brt - net) / brt) * 100).toFixed(2);
-            document.getElementById('fireSonuc').value = "% " + fOran.replace('.', ',');
-            var u = document.getElementById('fireUyari');
-            if (fOran > 5) { document.body.className = "bg-kirmizi"; u.innerHTML = "YÜKSEK!"; }
-            else { document.body.className = "bg-yesil"; u.innerHTML = "NORMAL"; }
-        }
-
-        function hesaplaKik() {
-            var kal = parseFloat(document.getElementById('kal').value.replace(',', '.'));
-            var gen = parseFloat(document.getElementById('kikGen').value.replace(',', '.'));
-            var mtr = parseFloat(document.getElementById('metre').value.replace(',', '.'));
-            if (isNaN(kal) || isNaN(gen) || isNaN(mtr)) return;
-            formatla('kal');
-            var bm = (kal * gen * 7.85) / 1000;
-            var t = Math.round(bm * mtr);
-            document.getElementById('birM').value = bm.toFixed(2).replace('.', ',');
-            document.getElementById('tonaj').value = t;
-            var u = document.getElementById('kikUyari');
-            if (t >= 1500) { document.body.className = "bg-kirmizi"; u.innerHTML = "DİKKAT!"; }
-            else { document.body.className = "bg-yesil"; u.innerHTML = "UYGUN"; }
-        }
-
-        function hesaplaKg() {
-            var dc = parseFloat(document.getElementById('dc_giriş').value.replace(',', '.'));
-            var gn = parseFloat(document.getElementById('gn_kg').value.replace(',', '.'));
-            var ic = document.getElementById('r610_kg').checked ? 610 : 508;
-            if (isNaN(dc) || isNaN(gn)) return;
-            var agirlik = Math.round(((dc * dc) - (ic * ic)) * (7.85 * gn * 3.14) / 4000000);
-            document.getElementById('kg_sonuc').value = agirlik;
-            document.getElementById('kgUyari').innerHTML = "TAMAM";
-            document.body.className = "bg-yesil";
-        }
-
-        function hesaplaUzunluk() {
-            var kal = parseFloat(document.getElementById('u_kal').value.replace(',', '.'));
-            var gen = parseFloat(document.getElementById('u_gen').value.replace(',', '.'));
-            var ton = parseFloat(document.getElementById('u_ton').value.replace(',', '.'));
-            if (isNaN(kal) || isNaN(gen) || isNaN(ton)) return;
-            formatla('u_kal');
-            var bm = (kal * gen * 7.85) / 1000;
-            var mtr = Math.round(ton / bm);
-            document.getElementById('u_sonuc').value = mtr;
-            document.getElementById('uzunlukUyari').innerHTML = "METRE";
-            document.body.className = "bg-yesil";
-        }
-
-        function hesaplaSure() {
-            var pota = parseFloat(document.getElementById('top_ton').value.replace(',', '.'));
-            var bobin = parseFloat(document.getElementById('mak_hiz').value.replace(',', '.'));
-            if (isNaN(pota) || isNaN(bobin) || pota == 0) return;
+    function HandleEnter(event) {
+        if (event.keyCode === 13 || event.key === "Enter") {
+            event.preventDefault();
+            let cId = event.target.id;
+            let nId = "";
             
-            // FORMÜL: 60 * BOBİN KİLO / POTA TONAJ
-            var sonuc = (60 * bobin / pota).toFixed(2);
-            document.getElementById('sure_sonuc').value = sonuc.replace('.', ',') + " DAK";
-            document.getElementById('sureUyari').innerHTML = "SÜRE";
-            document.body.className = "bg-yesil";
-        }
+            const sequence = [
+                "s1", "s2", "s4", "s5", "s6", "s7", "s8", "s13", "s14", 
+                "s9", "s10", "s12", "s12d", "asgari", "dv_muaf", "gv_muaf", 
+                "s16", "s17", "s18", "s19", "s20", "v1"
+            ];
 
-        function tus(e, h, t) {
-            if ((e.keyCode || e.which) == 13) {
-                if (h == 'hesap') { 
-                    if(t == 'dis') hesaplaDisCap(); else if(t == 'fire') hesaplaFire(); else if(t == 'kik') hesaplaKik(); else if(t == 'kg') hesaplaKg(); else if(t == 'uzunluk') hesaplaUzunluk(); else if(t == 'sure') hesaplaSure();
-                } else { 
-                    document.getElementById(h).focus(); 
-                }
-                return false;
+            let index = sequence.indexOf(cId);
+            if (index !== -1 && index < sequence.length - 1) {
+                nId = sequence[index + 1];
+                document.getElementById(nId).focus();
+            } else if (cId === "v1" || index === sequence.length - 1) {
+                Hesapla();
+                document.activeElement.blur(); 
             }
         }
-    </script>
+    }
+
+    function Hesapla() {
+        try {
+            let B2 = G("s1"), B3 = G("s2"), B4 = B2 * B3;
+            let C5 = G("s4") * B2 * 2;
+            let C6 = G("s5") * B2 * 2;
+            let C7 = G("s6") * B2 * 2.25;
+            let C8 = G("s7") * G("gz_oran");
+            let C9 = G("s8");
+            let B10 = G("s9"), B11 = 75 * B2, B12 = G("s10"), B13 = G("s12");
+            let B16 = 0, B16_2 = G("s16"), B17 = G("s17"), B18 = G("s18"), B20 = G("s19"), B22 = G("s20");
+            let DV_M = G("dv_muaf"), GV_M = G("gv_muaf");
+            let B26 = B4 + C5 + C6 + C7 + C8 + C9 + B10 + B11 + B12 + B13 + B16 + B16_2 + B17 + B18 + B20 + B22;
+            let B27 = B26 - B10 - B13 - B16;
+            let B30 = Math.round(B27 * 0.14 * 100) / 100;
+            let B31 = Math.round(B27 * 0.01 * 100) / 100;
+            let B15 = G("s14");
+            let B29 = B27 - B30 - B31 - B15;
+            let v_oran = parseFloat(document.getElementById("v1").value) / 100;
+            let B33 = Math.round(((B29 * v_oran) - GV_M) * 100) / 100; if (B33 < 0) B33 = 0;
+            let B32 = Math.round(((B26 * 0.00759) - DV_M) * 100) / 100; if (B32 < 0) B32 = 0;
+            let B40 = B30 + B31 + B32 + B33;
+            let B14 = G("s13"), D13 = G("s12d"), B23 = 0;
+            let B41 = B15 + B14 + B23 + D13;
+            let B42 = B26 - B41 - B40;
+            let B43 = B42 + B14;
+            document.getElementById("res6").innerHTML = formatTRY(B42);
+            document.getElementById("resToplam").innerHTML = formatTRY(B43);
+            alert("Hesaplama Tamamlandı!");
+        } catch (e) { console.error(e); }
+    }
+</script>
 </head>
-<body class="bg-normal">
-
-    <!-- ANA SAYFA -->
-    <div id="ana-sayfa" class="sayfa aktif">
-        <div class="ana-kart">
-            <div class="ana-baslik">ÇIKIŞ<span>Hesaplama İşlemleri</span></div>
-            <button class="ana-btn" onclick="sayfaAc('dis-cap-sayfa')">Ağırlığa Göre Dış Çap Hesabı</button>
-            <button class="ana-btn" onclick="sayfaAc('kik-sayfa')">Metraja Göre KG Hesabı (KiK)</button>
-            <button class="ana-btn" onclick="sayfaAc('kg-hesap-sayfa')">Dış Çapa Göre KG Hesabı</button>
-            <button class="ana-btn" onclick="sayfaAc('uzunluk-hesap-sayfa')">Tonaj'a Göre Uzunluk Hesabı</button>
-            <button class="ana-btn" onclick="sayfaAc('sure-hesap-sayfa')">Tonaj'a Göre Süre Hesabı</button>
-            <button class="ana-btn" onclick="sayfaAc('fire-sayfa')">Fire Hesabı</button>
-        </div>
-        <div class="alt-bilgi">
-            <div id="saatAlan"></div>
-            <div>ErsNByhN® 2026</div>
-        </div>
+<body data-__gcrweb-annotatedpagecontent-processed="C049B7E62B5327283859EC1AB6383219">
+<div class="container">
+    <h2>Maaş Hesaplama Otomasyonu</h2>
+    <form action="javascript:void(0);">
+    <table>
+        <tbody><tr><td class="lbl">Saat Ücreti:</td><td class="input-cell"><input type="text" inputmode="decimal" id="s1" onkeyup="OtomatikHesapla()" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Çalışma Saati:</td><td class="input-cell"><input type="text" inputmode="decimal" id="s2" onkeyup="OtomatikHesapla()" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Temel Brüt :</td><td class="input-cell"><input type="text" id="s3" class="readonly-input" readonly=""></td></tr>
+        <tr><td class="lbl">İkramiye :</td><td class="input-cell"><input type="text" id="s11" class="readonly-input" readonly=""></td></tr>
+        <tr><td colspan="2"><hr></td></tr>
+        <tr><td class="lbl">Mesai Saati (x2):</td><td class="input-cell"><input type="text" inputmode="decimal" id="s4" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Vardiya Dön. Saati (x2):</td><td class="input-cell"><input type="text" inputmode="decimal" id="s5" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Bayram Mesai Saati (x2.25):</td><td class="input-cell"><input type="text" inputmode="decimal" id="s6" onkeydown="HandleEnter(event)"></td></tr>
+        <tr>
+            <td class="lbl">
+                <div class="gz-label-area">
+                    <span>Gece Zammı (x30.63):</span>
+                    <input type="text" inputmode="decimal" id="gz_oran" class="editable-param gz-small-box" value="30,63" onkeydown="HandleEnter(event)">
+                </div>
+            </td>
+            <td class="input-cell"><input type="text" inputmode="decimal" id="s7" onkeydown="HandleEnter(event)"></td>
+        </tr>
+        <tr><td class="lbl">FM Gece Zammı (TL):</td><td class="input-cell"><input type="text" inputmode="decimal" id="s8" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Avans :</td><td class="input-cell"><input type="text" inputmode="decimal" id="s13" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Sendika Aidatı :</td><td class="input-cell"><input type="text" inputmode="decimal" id="s14" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td colspan="2"><hr></td></tr>
+        <tr><td class="lbl">Çocuk Yardımı:</td><td class="input-cell"><input type="text" inputmode="decimal" id="s9" value="310,02" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Yakacak Yardımı:</td><td class="input-cell"><input type="text" inputmode="decimal" id="s10" value="3341,82" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Sağlık Sigortası :</td><td class="input-cell"><input type="text" inputmode="decimal" id="s12" value="1121,24" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Sağlık Sigortası (Özel):</td><td class="input-cell"><input type="text" inputmode="decimal" id="s12d" value="1112,73" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Asgari Ücret BRÜT:</td><td class="input-cell"><input type="text" inputmode="decimal" id="asgari" class="editable-param" value="33030,00" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">DV Muafiyeti:</td><td class="input-cell"><input type="text" inputmode="decimal" id="dv_muaf" class="editable-param" value="250,70" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">GV Muafiyeti:</td><td class="input-cell"><input type="text" inputmode="decimal" id="gv_muaf" class="editable-param" value="4211,33" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td colspan="2"><hr></td></tr>
+        <tr><td class="lbl">Ayni Yardım 2:</td><td class="input-cell"><input type="text" inputmode="decimal" id="s16" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">İzin Parası:</td><td class="input-cell"><input type="text" inputmode="decimal" id="s17" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Alışveriş Çeki:</td><td class="input-cell"><input type="text" inputmode="decimal" id="s18" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Bayram Ücreti:</td><td class="input-cell"><input type="text" inputmode="decimal" id="s19" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Öğrenim Yardımı:</td><td class="input-cell"><input type="text" inputmode="decimal" id="s20" onkeydown="HandleEnter(event)"></td></tr>
+        <tr><td class="lbl">Vergi Dilimi:</td><td class="input-cell">
+            <select id="v1" onkeydown="HandleEnter(event)">
+                <option value="15">%15</option>
+                <option value="20" selected="">%20</option>
+                <option value="27">%27</option>
+            </select>
+        </td></tr>
+    </tbody></table>
+    </form>
+    <button class="btn" onclick="Hesapla()" id="btnHesapla">MAAŞI HESAPLA</button>
+    <div class="result-panel">
+        <div class="result-row"><span>TOPLAM MAAŞ (Net):</span><span id="res6" class="result-val">0,00 TL</span></div>
+        <div class="result-row"><span>AYIN 6'SI NET ÖDEME:</span><span id="resToplam" class="result-val">0,00 TL</span></div>
     </div>
+    <div class="footer">Hazırlayan: <span>ErsNByhN</span></div>
+</div>
 
-    <!-- DIŞ ÇAP SAYFASI -->
-    <div id="dis-cap-sayfa" class="sayfa">
-        <div class="sayfa-ust-baslik">ÇIKIŞ</div><div class="sayfa-alt-baslik">Ağırlığa Göre Dış Çap Hesabı</div>
-        <table class="excel-tablo">
-            <tr><td class="etiket-normal">AĞIRLIK</td><td><input type="number" step="any" id="ag" class="dev-input" onkeypress="return tus(event, 'gn', 'dis')"></td></tr>
-            <tr><td class="etiket-normal">İÇ ÇAP</td><td><label class="radio-container"><input type="radio" name="ic" id="r508" checked onclick="hesaplaDisCap()"> 508</label><label class="radio-container"><input type="radio" name="ic" id="r610" onclick="hesaplaDisCap()"> 610</label></td></tr>
-            <tr><td class="etiket-normal">GENİŞLİK</td><td><input type="number" step="any" id="gn" class="dev-input" onkeypress="return tus(event, 'hesap', 'dis')"></td></tr>
-            <tr><td><div class="etiket-hucre-ozel"><div class="ana-etiket">DIŞ ÇAP</div><div class="alt-not-sifir">(Max 1820)</div></div></td><td><input type="text" id="sonuc" class="dev-input" readonly></td></tr>
-        </table>
-        <table width="100%"><tr><td align="center"><button class="islem-btn" onclick="sayfaAc('ana-sayfa')">&#11013; GERİ</button></td><td align="center"><button class="islem-btn" onclick="hesaplaDisCap()">HESAPLA &#128430;</button></td><td align="center"><button class="islem-btn" onclick="temizle('dis-cap-sayfa')">YENİLE &#128260;</button></td></tr></table>
-        <div class="uyari-konteynir"><div id="uyariMesaji" class="uyari-metin">&nbsp;</div></div>
-    </div>
+<script>
+    function G(id) {
+        let val = document.getElementById(id).value;
+        if (val === "") return 0;
+        val = val.replace(/\./g, "").replace(",", ".");
+        return isNaN(parseFloat(val)) ? 0 : parseFloat(val);
+    }
 
-    <!-- KİK SAYFASI -->
-    <div id="kik-sayfa" class="sayfa">
-        <div class="sayfa-ust-baslik">ÇIKIŞ</div><div class="sayfa-alt-baslik">Metraja Göre Tonaj Hesabı</div>
-        <table class="excel-tablo">
-            <tr><td class="etiket-normal">KALINLIK</td><td><input type="number" step="any" id="kal" class="dev-input" onblur="formatla('kal')" onkeypress="return tus(event, 'kikGen', 'kik')"></td></tr>
-            <tr><td class="etiket-normal">GENİŞLİK</td><td><input type="number" step="any" id="kikGen" class="dev-input" onkeypress="return tus(event, 'metre', 'kik')"></td></tr>
-            <tr><td class="etiket-normal">METRE</td><td><input type="number" step="any" id="metre" class="dev-input" onkeypress="return tus(event, 'hesap', 'kik')"></td></tr>
-            <tr><td class="etiket-normal">1M / KG</td><td><input type="text" id="birM" class="dev-input" readonly></td></tr>
-            <tr><td class="etiket-normal">TONAJ</td><td><input type="text" id="tonaj" class="dev-input" readonly></td></tr>
-        </table>
-        <table width="100%"><tr><td align="center"><button class="islem-btn" onclick="sayfaAc('ana-sayfa')">&#11013; GERİ</button></td><td align="center"><button class="islem-btn" onclick="hesaplaKik()">HESAPLA &#128430;</button></td><td align="center"><button class="islem-btn" onclick="temizle('kik-sayfa')">YENİLE &#128260;</button></td></tr></table>
-        <div class="uyari-konteynir"><div id="kikUyari" class="uyari-metin">&nbsp;</div></div>
-    </div>
+    function formatTRY(val) {
+        return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(val);
+    }
 
-    <!-- KG HESAP SAYFASI -->
-    <div id="kg-hesap-sayfa" class="sayfa">
-        <div class="sayfa-ust-baslik">ÇIKIŞ</div><div class="sayfa-alt-baslik">Dış Çaptan Ağırlık Bulma</div>
-        <table class="excel-tablo">
-            <tr><td class="etiket-normal">DIŞ ÇAP</td><td><input type="number" step="any" id="dc_giriş" class="dev-input" onkeypress="return tus(event, 'gn_kg', 'kg')"></td></tr>
-            <tr><td class="etiket-normal">İÇ ÇAP</td><td><label class="radio-container"><input type="radio" name="ic_kg" id="r508_kg" checked onclick="hesaplaKg()"> 508</label><label class="radio-container"><input type="radio" name="ic_kg" id="r610_kg" onclick="hesaplaKg()"> 610</label></td></tr>
-            <tr><td class="etiket-normal">GENİŞLİK</td><td><input type="number" step="any" id="gn_kg" class="dev-input" onkeypress="return tus(event, 'hesap', 'kg')"></td></tr>
-            <tr><td class="etiket-normal">KG</td><td><input type="text" id="kg_sonuc" class="dev-input" readonly></td></tr>
-        </table>
-        <table width="100%"><tr><td align="center"><button class="islem-btn" onclick="sayfaAc('ana-sayfa')">&#11013; GERİ</button></td><td align="center"><button class="islem-btn" onclick="hesaplaKg()">HESAPLA &#128430;</button></td><td align="center"><button class="islem-btn" onclick="temizle('kg-hesap-sayfa')">YENİLE &#128260;</button></td></tr></table>
-        <div class="uyari-konteynir"><div id="kgUyari" class="uyari-metin">&nbsp;</div></div>
-    </div>
+    function OtomatikHesapla() {
+        let B2 = G("s1");
+        let B3 = G("s2");
+        document.getElementById("s3").value = (B2 * B3).toFixed(2).replace(".", ",");
+        document.getElementById("s11").value = (75 * B2).toFixed(2).replace(".", ",");
+    }
 
-    <!-- UZUNLUK HESAP SAYFASI -->
-    <div id="uzunluk-hesap-sayfa" class="sayfa">
-        <div class="sayfa-ust-baslik">ÇIKIŞ</div><div class="sayfa-alt-baslik">Tonaja Göre Uzunluk Hesabı</div>
-        <table class="excel-tablo">
-            <tr><td class="etiket-normal">KALINLIK</td><td><input type="number" step="any" id="u_kal" class="dev-input" onblur="formatla('u_kal')" onkeypress="return tus(event, 'u_gen', 'uzunluk')"></td></tr>
-            <tr><td class="etiket-normal">GENİŞLİK</td><td><input type="number" step="any" id="u_gen" class="dev-input" onkeypress="return tus(event, 'u_ton', 'uzunluk')"></td></tr>
-            <tr><td class="etiket-normal">TONAJ KG</td><td><input type="number" step="any" id="u_ton" class="dev-input" onkeypress="return tus(event, 'hesap', 'uzunluk')"></td></tr>
-            <tr><td class="etiket-normal">METRE</td><td><input type="text" id="u_sonuc" class="dev-input" readonly></td></tr>
-        </table>
-        <table width="100%"><tr><td align="center"><button class="islem-btn" onclick="sayfaAc('ana-sayfa')">&#11013; GERİ</button></td><td align="center"><button class="islem-btn" onclick="hesaplaUzunluk()">HESAPLA &#128430;</button></td><td align="center"><button class="islem-btn" onclick="temizle('uzunluk-hesap-sayfa')">YENİLE &#128260;</button></td></tr></table>
-        <div class="uyari-konteynir"><div id="uzunlukUyari" class="uyari-metin">&nbsp;</div></div>
-    </div>
+    function HandleEnter(event) {
+        if (event.keyCode === 13 || event.key === "Enter") {
+            event.preventDefault();
+            let cId = event.target.id;
+            let nId = "";
+            
+            const sequence = [
+                "s1", "s2", "s4", "s5", "s6", "s7", "s8", "s13", "s14", 
+                "s9", "s10", "s12", "s12d", "asgari", "dv_muaf", "gv_muaf", 
+                "s16", "s17", "s18", "s19", "s20", "v1"
+            ];
 
-    <!-- SÜRE HESAP SAYFASI -->
-    <div id="sure-hesap-sayfa" class="sayfa">
-        <div class="sayfa-ust-baslik">ÇIKIŞ</div><div class="sayfa-alt-baslik">Üretim Süresi Tahmini</div>
-        <table class="excel-tablo">
-            <tr><td class="etiket-normal">POTA TONAJ</td><td><input type="number" step="any" id="top_ton" class="dev-input" onkeypress="return tus(event, 'mak_hiz', 'sure')"></td></tr>
-            <tr><td class="etiket-normal">BOBİN KİLO</td><td><input type="number" step="any" id="mak_hiz" class="dev-input" onkeypress="return tus(event, 'hesap', 'sure')"></td></tr>
-            <tr><td class="etiket-normal">DAKİKA</td><td><input type="text" id="sure_sonuc" class="dev-input" readonly style="font-size: 28px;"></td></tr>
-        </table>
-        <table width="100%"><tr><td align="center"><button class="islem-btn" onclick="sayfaAc('ana-sayfa')">&#11013; GERİ</button></td><td align="center"><button class="islem-btn" onclick="hesaplaSure()">HESAPLA &#128430;</button></td><td align="center"><button class="islem-btn" onclick="temizle('sure-hesap-sayfa')">YENİLE &#128260;</button></td></tr></table>
-        <div class="uyari-konteynir"><div id="sureUyari" class="uyari-metin">&nbsp;</div></div>
-    </div>
+            let index = sequence.indexOf(cId);
+            if (index !== -1 && index < sequence.length - 1) {
+                nId = sequence[index + 1];
+                document.getElementById(nId).focus();
+            } else if (cId === "v1" || index === sequence.length - 1) {
+                Hesapla();
+                document.activeElement.blur(); 
+            }
+        }
+    }
 
-    <!-- FİRE SAYFASI -->
-    <div id="fire-sayfa" class="sayfa">
-        <div class="sayfa-ust-baslik">ÇIKIŞ</div><div class="sayfa-alt-baslik">Üretim Fire Oranı Hesabı</div>
-        <table class="excel-tablo">
-            <tr><td class="etiket-normal">BRÜT KG</td><td><input type="number" step="any" id="brut" class="dev-input" onkeypress="return tus(event, 'net', 'fire')"></td></tr>
-            <tr><td class="etiket-normal">NET KG</td><td><input type="number" step="any" id="net" class="dev-input" onkeypress="return tus(event, 'hesap', 'fire')"></td></tr>
-            <tr><td class="etiket-normal">FİRE</td><td><input type="text" id="fireSonuc" class="dev-input" readonly></td></tr>
-        </table>
-        <table width="100%"><tr><td align="center"><button class="islem-btn" onclick="sayfaAc('ana-sayfa')">&#11013; GERİ</button></td><td align="center"><button class="islem-btn" onclick="hesaplaFire()">HESAPLA &#128430;</button></td><td align="center"><button class="islem-btn" onclick="temizle('fire-sayfa')">YENİLE &#128260;</button></td></tr></table>
-        <div class="uyari-konteynir"><div id="fireUyari" class="uyari-metin">&nbsp;</div></div>
-    </div>
-
-</body>
-</html>
+    function Hesapla() {
+        try {
+            let B2 = G("s1"), B3 = G("s2"), B4 = B2 * B3;
+            let C5 = G("s4") * B2 * 2;
+            let C6 = G("s5") * B2 * 2;
+            let C7 = G("s6") * B2 * 2.25;
+            let C8 = G("s7") * G("gz_oran");
+            let C9 = G("s8");
+            let B10 = G("s9"), B11 = 75 * B2, B12 = G("s10"), B13 = G("s12");
+            let B16 = 0, B16_2 = G("s16"), B17 = G("s17"), B18 = G("s18"), B20 = G("s19"), B22 = G("s20");
+            let DV_M = G("dv_muaf"), GV_M = G("gv_muaf");
+            let B26 = B4 + C5 + C6 + C7 + C8 + C9 + B10 + B11 + B12 + B13 + B16 + B16_2 + B17 + B18 + B20 + B22;
+            let B27 = B26 - B10 - B13 - B16;
+            let B30 = Math.round(B27 * 0.14 * 100) / 100;
+            let B31 = Math.round(B27 * 0.01 * 100) / 100;
+            let B15 = G("s14");
+            let B29 = B27 - B30 - B31 - B15;
+            let v_oran = parseFloat(document.getElementById("v1").value) / 100;
+            let B33 = Math.round(((B29 * v_oran) - GV_M) * 100) / 100; if (B33 < 0) B33 = 0;
+            let B32 = Math.round(((B26 * 0.00759) - DV_M) * 100) / 100; if (B32 < 0) B32 = 0;
+            let B40 = B30 + B31 + B32 + B33;
+            let B14 = G("s13"), D13 = G("s12d"), B23 = 0;
+            let B41 = B15 + B14 + B23 + D13;
+            let B42 = B26 - B41 - B40;
+            let B43 = B42 + B14;
+            document.getElementById("res6").innerHTML = formatTRY(B42);
+            document.getElementById("resToplam").innerHTML = formatTRY(B43);
+            alert("Hesaplama Tamamlandı!");
+        } catch (e) { console.error(e); }
+    }
+</script></body>
